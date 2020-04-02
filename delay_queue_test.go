@@ -17,89 +17,6 @@ var (
 	mc10k sync.Mutex
 )
 
-// 实现 IDelayJob 接口
-
-type workOnce10k struct {
-	id      int
-	tickDur time.Duration
-	tick    int64
-	tm      time.Time
-}
-
-func (w *workOnce10k) Work() {
-	// goroutine 受调度影响
-	var (
-		cur  = time.Now().UnixNano()
-		exec = w.tm.UnixNano()
-		dif  = cur - exec
-	)
-	m10k.Lock()
-	r10k = append(r10k, dif)
-	defer m10k.Unlock()
-	fmt.Printf("workid - %d 已执行 当前执行时间[%d] - 应执行时间[%d], 延迟时间: %d纳秒 -  %d微秒\n", w.id, cur, exec, dif, dif/int64(time.Microsecond))
-}
-
-func (w *workOnce10k) SetTime() time.Time {
-	return w.tm
-}
-func (w *workOnce10k) SetTick() (time.Duration, int64) {
-	return w.tickDur, w.tick
-}
-
-type workCycle10k struct {
-	id      int
-	tickDur time.Duration
-	tick    int64
-	tm      time.Time
-}
-
-func (w *workCycle10k) Work() {
-	// goroutine 受调度影响
-	var (
-		cur  = time.Now().UnixNano()
-		exec = w.tm.UnixNano()
-		dif  = cur - exec
-	)
-	mc10k.Lock()
-	rc10k = append(rc10k, dif)
-	defer mc10k.Unlock()
-	//fmt.Printf("workid - %d 已执行 当前执行时间[%d] - 应执行时间[%d], 延迟时间: %d纳秒 -  %d微秒\n", w.id, cur, exec, dif, dif/int64(time.Microsecond))
-}
-
-func (w *workCycle10k) SetTime() time.Time {
-	return w.tm
-}
-func (w *workCycle10k) SetTick() (time.Duration, int64) {
-	return w.tickDur, w.tick
-}
-
-type workOnce200k struct {
-	id      int
-	tickDur time.Duration
-	tick    int64
-	tm      time.Time
-}
-
-func (w *workOnce200k) Work() {
-	// goroutine 受调度影响
-	var (
-		cur  = time.Now().UnixNano()
-		exec = w.tm.UnixNano()
-		dif  = cur - exec
-	)
-	m200k.Lock()
-	r200k = append(r200k, dif)
-	defer m200k.Unlock()
-	fmt.Printf("workid - %d 已执行 当前执行时间[%d] - 应执行时间[%d], 延迟时间: %d纳秒 -  %d微秒\n", w.id, cur, exec, dif, dif/int64(time.Microsecond))
-}
-
-// 实现 IDelayJob 接口
-func (w *workOnce200k) SetTime() time.Time {
-	return w.tm
-}
-func (w *workOnce200k) SetTick() (time.Duration, int64) {
-	return w.tickDur, w.tick
-}
 func TestDelayPoll(t *testing.T) {
 	t.Run("delayWork-10k", func(t *testing.T) {
 		ch := DelayPollStart(100)
@@ -195,4 +112,87 @@ func TestDelayPoll(t *testing.T) {
 		fmt.Printf("执行次数 %d\n", len(rc10k))
 		//fmt.Printf("最大延迟 = %d纳秒 - %d微秒\n", maxDif, maxDif/int64(time.Microsecond))
 	})
+}
+
+// 实现 IDelayJob 接口
+type workOnce10k struct {
+	id      int
+	tickDur time.Duration
+	tick    int64
+	tm      time.Time
+}
+
+func (w *workOnce10k) Work() {
+	// goroutine 受调度影响
+	var (
+		cur  = time.Now().UnixNano()
+		exec = w.tm.UnixNano()
+		dif  = cur - exec
+	)
+	m10k.Lock()
+	r10k = append(r10k, dif)
+	defer m10k.Unlock()
+	fmt.Printf("workid - %d 已执行 当前执行时间[%d] - 应执行时间[%d], 延迟时间: %d纳秒 -  %d微秒\n", w.id, cur, exec, dif, dif/int64(time.Microsecond))
+}
+
+func (w *workOnce10k) SetTime() time.Time {
+	return w.tm
+}
+func (w *workOnce10k) SetTick() (time.Duration, int64) {
+	return w.tickDur, w.tick
+}
+
+type workCycle10k struct {
+	id      int
+	tickDur time.Duration
+	tick    int64
+	tm      time.Time
+}
+
+func (w *workCycle10k) Work() {
+	// goroutine 受调度影响
+	var (
+		cur  = time.Now().UnixNano()
+		exec = w.tm.UnixNano()
+		dif  = cur - exec
+	)
+	mc10k.Lock()
+	rc10k = append(rc10k, dif)
+	defer mc10k.Unlock()
+	//fmt.Printf("workid - %d 已执行 当前执行时间[%d] - 应执行时间[%d], 延迟时间: %d纳秒 -  %d微秒\n", w.id, cur, exec, dif, dif/int64(time.Microsecond))
+}
+
+func (w *workCycle10k) SetTime() time.Time {
+	return w.tm
+}
+func (w *workCycle10k) SetTick() (time.Duration, int64) {
+	return w.tickDur, w.tick
+}
+
+type workOnce200k struct {
+	id      int
+	tickDur time.Duration
+	tick    int64
+	tm      time.Time
+}
+
+func (w *workOnce200k) Work() {
+	// goroutine 受调度影响
+	var (
+		cur  = time.Now().UnixNano()
+		exec = w.tm.UnixNano()
+		dif  = cur - exec
+	)
+	m200k.Lock()
+	r200k = append(r200k, dif)
+	defer m200k.Unlock()
+	fmt.Printf("workid - %d 已执行 当前执行时间[%d] - 应执行时间[%d], 延迟时间: %d纳秒 -  %d微秒\n", w.id, cur, exec, dif, dif/int64(time.Microsecond))
+}
+
+// 实现 IDelayJob 接口
+func (w *workOnce200k) SetTime() time.Time {
+	return w.tm
+}
+func (w *workOnce200k) SetTick() (time.Duration, int64) {
+	return w.tickDur, w.tick
 }

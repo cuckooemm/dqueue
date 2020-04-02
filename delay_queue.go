@@ -112,9 +112,9 @@ func (p *queuePoll) getJob() delayJob {
 
 func (p *queuePoll) deleteTop() {
 	// 当前使用数据小于总数据1/4释放空间
-	if p.maxSize > 16 && p.size < p.maxSize>>2 {
+	if p.maxSize > 32 && p.size < p.maxSize>>2 {
 		p.maxSize >>= 1
-		p.workPoll = p.workPoll[:p.maxSize]
+		p.workPoll = p.workPoll[:p.maxSize:p.maxSize]
 	}
 	p.workPoll[0] = p.workPoll[p.size]
 	p.size--
