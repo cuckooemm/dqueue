@@ -23,7 +23,7 @@
     }
 
     // 初始化 100 = chan容量
-    ch := DelayPollStart(100)
+    ch := DelayQueueInit(100)
     // 实现IDelayQueue 接口
     var work something 
     ...
