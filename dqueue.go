@@ -1,4 +1,4 @@
-package cdelay_queue
+package dqueue
 
 import (
 	"time"
@@ -34,7 +34,7 @@ type queuePoll struct {
 	workPoll []delayJob
 }
 
-func DelayPollStart(chanSize int) chan<- IDelayJob {
+func DelayQueueInit(chanSize int) chan<- IDelayJob {
 	if chanSize < 1 {
 		chanSize = 100
 	}
@@ -61,16 +61,6 @@ func start(ch <-chan IDelayJob) {
 		if !tk.Stop() && len(tk.C) > 0 {
 			<-tk.C
 		}
-		//if job.tm - curTime < 99999 {
-		//	job.work.Work()
-		//	if job.tick > 0 {
-		//		job.tm += int64(job.tickDur)
-		//		job.tick--
-		//		qPoll.addJob(job)
-		//	}
-		//	qPoll.deleteTop()
-		//	continue
-		//}
 		tk.Reset(time.Duration(job.tm - curTime))
 		select {
 		case <-tk.C:

@@ -1,4 +1,4 @@
-package cdelay_queue
+package dqueue
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ var (
 
 func TestDelayPoll(t *testing.T) {
 	t.Run("delayWork-10k", func(t *testing.T) {
-		ch := DelayPollStart(100)
+		ch := DelayQueueInit(100)
 		r10k = make([]int64, 0, 10000)
 		rand.Seed(time.Now().UnixNano())
 		for i := 1; i <= 10000; i++ {
@@ -47,7 +47,7 @@ func TestDelayPoll(t *testing.T) {
 	})
 
 	t.Run("delayWork-200k", func(t *testing.T) {
-		ch := DelayPollStart(100)
+		ch := DelayQueueInit(100)
 		r200k = make([]int64, 0, 200000)
 		rand.Seed(time.Now().UnixNano())
 		for j := 0; j < 1000; j++ { // 产生 200000 个任务
@@ -83,7 +83,7 @@ func TestDelayPoll(t *testing.T) {
 	})
 
 	t.Run("cycle-10k", func(t *testing.T) {
-		ch := DelayPollStart(100)
+		ch := DelayQueueInit(100)
 		rc10k = make([]int64, 0, 10000)
 		rand.Seed(time.Now().UnixNano())
 		for i := 1; i <= 10000; i++ {
