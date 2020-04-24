@@ -18,7 +18,7 @@ func TestDelayPoll(t *testing.T) {
 			work.exec = time.Now().Add(time.Millisecond * time.Duration(rand.Intn(9999)+1)).UnixNano()
 			_ = NewDelayWork(time.Unix(0, work.exec), 0, 0, &work)
 		}
-		time.Sleep(time.Minute)
+		time.Sleep(time.Second * 15)
 	})
 
 	t.Run("delayWork-200k", func(t *testing.T) {
@@ -41,6 +41,7 @@ func TestDelayPoll(t *testing.T) {
 				_ = NewDelayWork(time.Unix(0, work.exec), 0, 0, &work)
 			}
 		}
+		time.Sleep(time.Minute)
 	})
 
 	t.Run("cycle", func(t *testing.T) {
@@ -55,7 +56,7 @@ func TestDelayPoll(t *testing.T) {
 			work.exec = time.Now().Add(time.Millisecond * time.Duration(rand.Intn(9999)+1)).UnixNano()
 			_ = NewDelayWork(time.Unix(0, work.exec), work.dif, -1, &work)
 		}
-		time.Sleep(time.Minute)
+		time.Sleep(time.Second * 30)
 	})
 
 	t.Run("cycle-count-5", func(t *testing.T) {
