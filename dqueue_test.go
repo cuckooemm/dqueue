@@ -16,7 +16,7 @@ func TestDelayPoll(t *testing.T) {
 			work.a = 2
 			work.b = 3
 			work.exec = time.Now().Add(time.Millisecond * time.Duration(rand.Intn(9999)+1)).UnixNano()
-			_ = NewDelayWork(time.Unix(0, work.exec), 0, 0, &work)
+			NewDelayWork(time.Unix(0, work.exec), 0, 0, &work)
 		}
 		time.Sleep(time.Second * 15)
 	})
@@ -30,7 +30,7 @@ func TestDelayPoll(t *testing.T) {
 				work.a = 2
 				work.b = 3
 				work.exec = time.Now().Add(time.Millisecond * time.Duration(rand.Intn(99)+1)).UnixNano()
-				_ = NewDelayWork(time.Unix(0, work.exec), 0, 0, &work)
+				NewDelayWork(time.Unix(0, work.exec), 0, 0, &work)
 			}
 			for x := 101; x <= 200; x++ {
 				var work work
@@ -38,7 +38,7 @@ func TestDelayPoll(t *testing.T) {
 				work.a = 2
 				work.b = 3
 				work.exec = time.Now().Add(time.Millisecond * time.Duration(rand.Intn(999)+1)).UnixNano()
-				_ = NewDelayWork(time.Unix(0, work.exec), 0, 0, &work)
+				NewDelayWork(time.Unix(0, work.exec), 0, 0, &work)
 			}
 		}
 		time.Sleep(time.Minute)
@@ -54,7 +54,7 @@ func TestDelayPoll(t *testing.T) {
 			work.continu = true
 			work.dif = time.Second
 			work.exec = time.Now().Add(time.Millisecond * time.Duration(rand.Intn(9999)+1)).UnixNano()
-			_ = NewDelayWork(time.Unix(0, work.exec), work.dif, -1, &work)
+			NewDelayWork(time.Unix(0, work.exec), work.dif, -1, &work)
 		}
 		time.Sleep(time.Second * 30)
 	})
@@ -68,7 +68,7 @@ func TestDelayPoll(t *testing.T) {
 			work.b = 3
 			work.dif = time.Second
 			work.exec = time.Now().Add(time.Millisecond * time.Duration(rand.Intn(9999)+1)).UnixNano()
-			_ = NewDelayWork(time.Unix(0, work.exec), work.dif, 4, &work)
+			NewDelayWork(time.Unix(0, work.exec), work.dif, 4, &work)
 		}
 		time.Sleep(time.Minute)
 	})

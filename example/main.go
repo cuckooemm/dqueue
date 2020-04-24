@@ -10,9 +10,9 @@ func main() {
 	var work1 work
 	var work2 work
 	var work3 work
-	_ = dqueue.NewDelayWork(time.Now().Add(time.Second), 0, 0, &work1)
-	_ = dqueue.NewDelayWork(time.Now().Add(time.Second), time.Second, 4, &work2)
-	_ = dqueue.NewDelayWork(time.Now().Add(time.Second), time.Second, -1, &work3)
+	dqueue.NewDelayWork(time.Now().Add(time.Second), 0, 0, &work1)
+	dqueue.NewDelayWork(time.Now().Add(time.Second), time.Second, 4, &work2)
+	dqueue.NewDelayWork(time.Now().Add(time.Second), time.Second, -1, &work3)
 	select {}
 }
 

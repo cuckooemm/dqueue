@@ -1,7 +1,6 @@
 package dqueue
 
 import (
-	"errors"
 	"time"
 )
 
@@ -26,12 +25,11 @@ type IDelayJob interface {
  ×  tick 为 -1 时持久执行 小于-1 返回error
  ×  work 需实现 IDelayJob 的 Work 函数
 */
-func NewDelayWork(ex time.Time, td time.Duration, tick int64, work IDelayJob) error {
+func NewDelayWork(ex time.Time, td time.Duration, tick int64, work IDelayJob) {
 	if tick < -1 {
-		return errors.New("Tick parameter input error")
+		panic("Tick parameter input error")
 	}
 	ch <- delayJob{tm: ex.UnixNano(), tickDur: int64(td), tick: tick, work: work}
-	return nil
 }
 
 type delayJob struct {
@@ -51,15 +49,6 @@ func init() {
 	ch = make(chan delayJob, 100)
 	go start(ch)
 }
-
-//func DelayQueueInit(chanSize int) chan<- IDelayJob {
-//	if chanSize < 1 {
-//		chanSize = 100
-//	}
-//	var ch = make(chan IDelayJob, chanSize)
-//	go start(ch)
-//	return ch
-//}
 
 func start(ch <-chan delayJob) {
 	var (
