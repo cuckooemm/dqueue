@@ -16,13 +16,13 @@ func main()  {
 	var work1 work
 	var work2 work
 	var work3 work
-    /*
-     *  ex 为认为执行的绝对时间
-     *  td 与 tick 成对出现 td 控制距离上次执行间隔，tick 控制次数
-     ×  tick 执行次数为 0 则执行1次 为 n 则执行 n + 1 次
-     ×  tick 为 -1 时持久执行 小于-1 panic
-     ×  work 需实现 IDelayJob 的 Work 函数
-     */
+        /*
+        *  ex 为认为执行的绝对时间
+        *  td 与 tick 成对出现 td 控制距离上次执行间隔，tick 控制次数
+        ×  tick 执行次数为 0 则执行1次 为 n 则执行 n + 1 次
+        ×  tick 为 -1 时持久执行 小于-1 panic
+        ×  work 需实现 IDelayJob 的 Work 函数
+        */
 	dqueue.NewDelayWork(time.Now().Add(time.Second), 0, 0, &work1)
 	dqueue.NewDelayWork(time.Now().Add(time.Second), time.Second, 4, &work2)
 	dqueue.NewDelayWork(time.Now().Add(time.Second), time.Second, -1, &work3)
