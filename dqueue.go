@@ -1,6 +1,7 @@
 package dqueue
 
 import (
+	"errors"
 	"time"
 )
 
@@ -9,20 +10,32 @@ const (
 )
 
 var (
+	ch    chan delayJob
 	qPoll queuePoll
 )
 
 type IDelayJob interface {
 	// 执行的回调函数
 	Work()
-	// 设置任务执行的绝对时间
-	SetTime() time.Time
-	// 设置任务的执行次数与每次执行与上次执行的时间差 0 == 1次 n == n+1次
-	SetTick() (td time.Duration, n int64)
+}
+
+/*
+ *  ex 为认为执行的绝对时间
+ *  td 与 tick 成对出现 td 控制距离上次执行间隔，tick 控制次数
+ ×  tick 执行次数为 0 则执行1次 为 n 则执行 n + 1 次
+ ×  tick 为 -1 时持久执行 小于-1 返回error
+ ×  work 需实现 IDelayJob 的 Work 函数
+*/
+func NewDelayWork(ex time.Time, td time.Duration, tick int64, work IDelayJob) error {
+	if tick < -1 {
+		return errors.New("Tick parameter input error")
+	}
+	ch <- delayJob{tm: ex.UnixNano(), tickDur: int64(td), tick: tick, work: work}
+	return nil
 }
 
 type delayJob struct {
-	tickDur time.Duration
+	tickDur int64
 	tick    int64
 	tm      int64
 	work    IDelayJob
@@ -34,16 +47,21 @@ type queuePoll struct {
 	workPoll []delayJob
 }
 
-func DelayQueueInit(chanSize int) chan<- IDelayJob {
-	if chanSize < 1 {
-		chanSize = 100
-	}
-	var ch = make(chan IDelayJob, chanSize)
+func init() {
+	ch = make(chan delayJob, 100)
 	go start(ch)
-	return ch
 }
 
-func start(ch <-chan IDelayJob) {
+//func DelayQueueInit(chanSize int) chan<- IDelayJob {
+//	if chanSize < 1 {
+//		chanSize = 100
+//	}
+//	var ch = make(chan IDelayJob, chanSize)
+//	go start(ch)
+//	return ch
+//}
+
+func start(ch <-chan delayJob) {
 	var (
 		tk  = time.NewTimer(maxTimeDuration)
 		job delayJob
@@ -66,19 +84,16 @@ func start(ch <-chan IDelayJob) {
 		case <-tk.C:
 			go job.work.Work()
 			if job.tick > 0 {
-				job.tm += int64(job.tickDur)
+				job.tm += job.tickDur
 				job.tick--
+				qPoll.addJob(job)
+			} else if job.tick == -1 {
+				job.tm += job.tickDur
 				qPoll.addJob(job)
 			}
 			qPoll.deleteTop()
-
 		case q := <-ch:
-			var dq = delayJob{
-				tm:   q.SetTime().UnixNano(),
-				work: q,
-			}
-			dq.tickDur, dq.tick = q.SetTick()
-			qPoll.addJob(dq)
+			qPoll.addJob(q)
 		}
 	}
 }
@@ -111,7 +126,6 @@ func (p *queuePoll) deleteTop() {
 	p.sink(0)
 }
 
-// 上浮
 func (p *queuePoll) upFloat(i int) {
 	if p.size == 0 || i == 0 {
 		return
@@ -124,7 +138,6 @@ func (p *queuePoll) upFloat(i int) {
 	return
 }
 
-// 下沉
 func (p *queuePoll) sink(i int) {
 	var (
 		l   = (i << 1) + 1
