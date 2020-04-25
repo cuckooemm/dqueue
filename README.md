@@ -9,34 +9,24 @@
 #### 使用
 
 `go get -u github.com/cuckooemm/dqueue`
+
 ```go
-    // 实现 IDelayJob 接口
-    // 到期执行回调函数
-func main()  {
-	var work1 work
-	var work2 work
-	var work3 work
-        /*
-        *  ex 为认为执行的绝对时间
-        *  td 与 tick 成对出现 td 控制距离上次执行间隔，tick 控制次数
-        ×  tick 执行次数为 0 则执行1次 为 n 则执行 n + 1 次
-        ×  tick 为 -1 时持久执行 小于-1 panic
-        ×  work 需实现 IDelayJob 的 Work 函数
-        */
-	dqueue.NewDelayWork(time.Now().Add(time.Second), 0, 0, &work1)
-	dqueue.NewDelayWork(time.Now().Add(time.Second), time.Second, 4, &work2)
-	dqueue.NewDelayWork(time.Now().Add(time.Second), time.Second, -1, &work3)
-	select {
+func main() {
+	rand.Seed(time.Now().UnixNano())
+	for i := 1; i <= 3; i++ {
+		var id = i
+		/*
+		   *  ex 为任务执行的绝对时间
+		   *  td 与 tick 成对出现 td 控制距离上次执行间隔，tick 控制次数
+		   ×  tick 执行次数为 0 则执行1次 为 n 则执行 n + 1 次
+		   ×  tick 为 -1 时持久执行 小于-1 panic
+		   ×  work func() 闭包
+		*/
+		dqueue.NewDelayWork(time.Now().Add(time.Millisecond * time.Duration(rand.Intn(999)+1)), time.Second, -1, func() {
+			fmt.Printf("持久任务  work[%d] 执行时间: [%s]\n",
+				id, time.Now().Format(time.RFC3339Nano))
+		})
 	}
-}
-
-type work struct {
-	count int
-}
-
-func (w *work) Work() {
-	w.count++
-	fmt.Printf("current exec time %s, 已执行 %d 次\n", time.Now().Format("2006-01-02 15:03:04"),w.count)
+	select {}
 }
 ```
-详细使用看测试用例

@@ -8,15 +8,12 @@ const (
 	maxTimeDuration = 1<<63 - 1
 )
 
+type Work func()
+
 var (
 	ch    chan delayJob
 	qPoll queuePoll
 )
-
-type IDelayJob interface {
-	// 执行的回调函数
-	Work()
-}
 
 /*
  *  ex 为认为执行的绝对时间
@@ -25,7 +22,7 @@ type IDelayJob interface {
  ×  tick 为 -1 时持久执行 小于-1 返回error
  ×  work 需实现 IDelayJob 的 Work 函数
 */
-func NewDelayWork(ex time.Time, td time.Duration, tick int64, work IDelayJob) {
+func NewDelayWork(ex time.Time, td time.Duration, tick int64, work Work) {
 	if tick < -1 {
 		panic("Tick parameter input error")
 	}
@@ -36,7 +33,7 @@ type delayJob struct {
 	tickDur int64
 	tick    int64
 	tm      int64
-	work    IDelayJob
+	work    Work
 }
 
 type queuePoll struct {
@@ -71,7 +68,7 @@ func start(ch <-chan delayJob) {
 		tk.Reset(time.Duration(job.tm - curTime))
 		select {
 		case <-tk.C:
-			go job.work.Work()
+			go job.work()
 			if job.tick > 0 {
 				job.tm += job.tickDur
 				job.tick--
